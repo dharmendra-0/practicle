@@ -1,0 +1,150 @@
+**Database**
+
+<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="WebForm1.aspx.cs" Inherits="GridView.WebForm1" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title></title>
+</head>
+<body>
+    <form id="form1" runat="server">
+        <div>
+            <asp:GridView ID="GridView1" runat="server" AutoGenerateColumns="False" DataKeyNames="Roll No" OnSelectedIndexChanged="GridView1_SelectedIndexChanged">
+                <Columns>
+                    <asp:BoundField DataField="Roll No" HeaderText="Roll No" ReadOnly="True" SortExpression="Roll No" />
+                    <asp:BoundField DataField="Name" HeaderText="Name" SortExpression="Name" />
+                </Columns>
+            </asp:GridView>
+            <asp:SqlDataSource ID="SqlDataSource1" runat="server" ConnectionString="<%$ ConnectionStrings:ConnectionString %>" ProviderName="<%$ ConnectionStrings:ConnectionString.ProviderName %>" SelectCommand="SELECT * FROM [Table]"></asp:SqlDataSource>
+
+            <br />
+            <br />
+
+            <asp:TextBox ID="txtRollno" runat="server" Placeholder="Roll No"></asp:TextBox>
+            <br />
+            <br />
+            <asp:TextBox ID="txtName" runat="server" Placeholder="Name"></asp:TextBox>
+            <br />
+            <br />
+            <asp:Button ID="btnInsert" runat="server" Text="Insert" OnClick="btnInsert_Click" />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <asp:Button ID="btnUpdate" runat="server" Text="Update" OnClick="btnUpdate_Click" />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <asp:Button ID="btnDelete" runat="server" Text="Delete" OnClick="btnDelete_Click" />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <asp:Button ID="btnSelect" runat="server" Text="Show Data" OnClick="btnSelect_Click" />
+        </div>
+    </form>
+</body>
+</html>
+
+
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+
+namespace GridView
+{
+    public partial class WebForm1 : System.Web.UI.Page
+    {
+        private void BindGridView()
+        {
+            string query = "SELECT * FROM [Table]";
+            using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
+            {
+                SqlDataAdapter da = new SqlDataAdapter(query, con);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+                GridView1.DataSource = dt;
+                // GridView1.DataBind();
+            }
+        }
+
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            if (!IsPostBack)
+            {
+                BindGridView();
+            }
+        }
+
+
+
+        protected void GridView1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+        }
+        protected void btnInsert_Click(object sender, EventArgs e)
+        {
+            string query = "INSERT INTO [Table] ([Roll No], [Name]) VALUES (@rollno, @name)";
+            using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
+            {
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@rollno", txtRollno.Text);
+                cmd.Parameters.AddWithValue("@name", txtName.Text);
+                con.Open();
+                cmd.ExecuteNonQuery();
+                con.Close();
+            }
+            txtRollno.Text = "";
+            txtName.Text = "";
+            BindGridView();
+        }
+
+        protected void btnDelete_Click(object sender, EventArgs e)
+        {
+            string query = "DELETE FROM [Table] WHERE [Roll No] = @rollno";  
+            using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
+            {
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@rollno", txtRollno.Text);
+                con.Open();
+                cmd.ExecuteNonQuery();
+                con.Close();
+            }
+            txtRollno.Text = "";
+            txtName.Text = "";
+            BindGridView();
+        }
+
+        protected void btnUpdate_Click(object sender, EventArgs e)
+        {
+            string query = "UPDATE [Table] SET [Name] = @name WHERE [Roll No] = @rollno";
+            using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
+            {
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@rollno", txtRollno.Text); 
+                cmd.Parameters.AddWithValue("@name", txtName.Text);
+                con.Open();
+                cmd.ExecuteNonQuery();
+                con.Close();
+            }
+            txtRollno.Text = "";
+            txtName.Text = "";
+            BindGridView();
+        }
+
+        protected void btnSelect_Click(object sender, EventArgs e)
+        {
+            string query = "SELECT * FROM [Table]";
+            using (SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString))
+            {
+                SqlCommand cmd = new SqlCommand(query, con);
+                con.Open();
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
+                da.Fill(dt);  
+                GridView1.DataSource = dt;
+                GridView1.DataBind(); 
+                con.Close();
+            }
+        }
+    }
+}
