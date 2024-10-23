@@ -134,3 +134,31 @@ print_table(N, Counter) :-
     format('~w * ~w = ~w~n', [N, Counter, Result]),
     NextCounter is Counter + 1,
     print_table(N, NextCounter).
+
+13. Convert Prolog predicates into sematic net
+% defining heirarchy
+isa(sparrow, bird).
+isa(eagle, bird).
+isa(bird, animal).
+isa(dog, mammal).
+isa(cat, mammal).
+isa(mammal, animal).
+
+% defining characteristics
+has(bird, wings).
+has(bird, feathers).
+has(mammal, fur).
+has(sparrow, small_size).
+has(eagle, large_size).
+has(dog, loyalty).
+has(cat, independence).
+
+
+Output:
+
+?- isa(sparrow, What).
+What = bird.
+
+?- has(bird, Characteristics).
+Characteristics = wings ;
+Characteristics = feathers.
